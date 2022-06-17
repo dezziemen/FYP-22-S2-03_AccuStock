@@ -2,9 +2,9 @@ from flask import Flask, render_template, request
 from finance import CompanyStock
 from training import LSTMPrediction
 import pandas as pd
+import json
 
 app = Flask(__name__)
-
 TABLE_RESPONSIVE_CLASS = ['table', 'table-striped', 'table-hover', 'table-bordered']
 
 
@@ -40,6 +40,7 @@ def stock(symbol):
         table=history.to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),
         titles=history.columns.values,
         news=news,
+        data=history.to_json()
     )
 
 

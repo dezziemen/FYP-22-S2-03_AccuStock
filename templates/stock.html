@@ -34,4 +34,9 @@
     {% endfor %}
     </table>
   </div>
+  <script>
+    var data = {{ data|safe }};
+    console.log(data);
+    console.log(data.Close);
+  </script>
 {% endblock %}

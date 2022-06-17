@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def get_default_start_date():
     date_now = datetime.datetime.now()
-    return date_now.replace(date_now.year - 10)
+    return date_now.replace(date_now.year - 3)
 
 
 class CompanyStock:
