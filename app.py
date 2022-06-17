@@ -1,8 +1,10 @@
+import matplotlib.pyplot as plt
 from flask import Flask, render_template, request
 from finance import CompanyStock
 from training import LSTMPrediction
 import pandas as pd
-import json
+import time
+import io
 
 app = Flask(__name__)
 TABLE_RESPONSIVE_CLASS = ['table', 'table-striped', 'table-hover', 'table-bordered']
@@ -47,14 +49,25 @@ def stock(symbol):
 # Forecast button
 @app.route('/forecast/<string:symbol>/<string:type>')
 def forecast(symbol, type):
+    time_now = time.time()
     company = CompanyStock(symbol)
-    table = company.get_item(type)
-    print(table)
+    data = company.get_item(type)
+    prediction = LSTMPrediction(data)
+
+    # Prepare and start prediction
+    look_back, x_train, x_test, y_train, y_test, test_data = prediction.reshape()
+    model = prediction.prepare_model(look_back, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
+    prediction.train(model, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, test_data=test_data)
+    prediction.predict(days=30, model=model, test_data=test_data)
+
+    graph_filename = f'static/{str(time_now)}.png'
+    plt.savefig(graph_filename)
     return render_template(
         'forecast.html',
         company=company.get_info('longName'),
         type=type,
-        table=table.to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),
+        table=data.to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),
+        graph_filename='/' + graph_filename,
     )
 
 

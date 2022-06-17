@@ -93,10 +93,10 @@ class LSTMPrediction:
         math.sqrt(mean_squared_error(y_train, train_predict))
         math.sqrt(mean_squared_error(y_test, test_predict))
 
-        self.plot_prediction(train_predict, test_predict)
-        plt.show()
+        # self.plot_prediction(train_predict, test_predict)
+        # plt.show()
 
-    def predict(self, days):
+    def predict(self, *, days, model, test_data):
         x_input = test_data[-100:].reshape(1, -1)
         print(x_input.shape)
 
@@ -117,7 +117,8 @@ class LSTMPrediction:
                 x_input = x_input.reshape((1, n_steps, 1))
                 print(f'{x_input = }')
                 yhat = model.predict(x_input, verbose=0)
-                x_input = np.array(temp_input[1:])
+                print(f'{i} day input {yhat}')
+                # x_input = np.array(temp_input[1:])
                 temp_input.extend(yhat[0].tolist())
                 temp_input = temp_input[1:]
                 lst_output.extend(yhat.tolist())
@@ -128,17 +129,18 @@ class LSTMPrediction:
                 temp_input.extend(yhat[0].tolist())
                 print(len(temp_input))
                 lst_output.extend(yhat.tolist())
-                i = i + 1
+
+            i = i + 1
 
         print(f'{lst_output = }')
 
-        day_new = np.arrange(1, 101)
-        day_prediction = np.arrange(101, 101 + days)
+        day_new = np.arange(1, 101)
+        day_prediction = np.arange(101, 101 + days)
         df3 = self.data.tolist()
         df3.extend(lst_output)
         plt.plot(day_new, self.scaler.inverse_transform(self.data[-100:]))
         plt.plot(day_prediction, self.scaler.inverse_transform(lst_output))
-        plt.show()
+        # plt.show()
 
 
 if __name__ == '__main__':
@@ -148,4 +150,4 @@ if __name__ == '__main__':
     look_back, x_train, x_test, y_train, y_test, test_data = prediction.reshape()
     model = prediction.prepare_model(look_back, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
     prediction.train(model, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, test_data=test_data)
-    prediction.predict(30)
+    prediction.predict(days=30, model=model, test_data=test_data)
