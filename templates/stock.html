@@ -6,11 +6,16 @@
 {% endblock %}
 {% block content %}
   <h1 class="bg-secondary p-2 text-white">{{ company }}</h1>
-  <button type="button" class="btn btn-success">Forecast stock</button>
+  <div class="btn-group" role="group" aria-label="Basic example">
+    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Open') }}" id="forecast-btn" class="btn btn-success">Forecast Open</a>
+    <a href="{{ url_for('.forecast', symbol=company_symbol, type='High') }}" id="forecast-btn" class="btn btn-success">Forecast High</a>
+    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Low') }}" id="forecast-btn" class="btn btn-success">Forecast Low</a>
+    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Close') }}" id="forecast-btn" class="btn btn-success">Forecast Close</a>
+  </div>
   <h2>Historical data</h2>
   <div class="container">
     <div class="table-responsive" style="max-height: 300px;">
-      {{ table|safe }}
+      {{ table | safe }}
     </div>
     <button type="button" class="btn btn-primary">View graph</button>
   </div>
@@ -29,26 +34,4 @@
     {% endfor %}
     </table>
   </div>
-{#  <canvas id="candlestickChart"></canvas>#}
-{#  <script>#}
-{#    var ctx = document.getElementById("candlestickChart").getContext("2d");#}
-{#    var candlestickChart = new Chart(ctx, {#}
-{#        type: "line",#}
-{#        data: {#}
-{#            labels: {{ table.first }},#}
-{#            datasets: [#}
-{#                {#}
-{#                    label: "Data points",#}
-{#                    data: {{ table }},#}
-{#                    fill:false,#}
-{#                    borderColor: "rgb(75, 192, 192)",#}
-{#                    lineTension: 0.1#}
-{#                }#}
-{#            ]#}
-{#        },#}
-{#        options: {#}
-{#            responsive: false#}
-{#        }#}
-{#    });#}
-{#  </script>#}
 {% endblock %}

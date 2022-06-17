@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% set title = 'FYP-22-S2-03' %}
+{% block navbar %}
+  {% include 'navbar.html' %}
+{% endblock %}
+{% block content %}
+  <h1 class="bg-secondary p-2 text-white">{{ company }}</h1>
+  <h2>Forecast page ({{ type }})</h2>
+  <div class="container">
+    <div class="table-responsive" style="max-height: 300px;">
+      {{ table | safe }}
+    </div>
+  </div>
+{% endblock %}

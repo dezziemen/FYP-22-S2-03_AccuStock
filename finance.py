@@ -50,7 +50,8 @@ class CompanyStock:
             end_date = self.end_date
 
         history = self.get_history(start_date=start_date, end_date=end_date)
-        return history.reset_index().get(item)
+        # print(f'{history[item] = }')
+        return history[[item]].reset_index()
 
     def get_open(self, *, start_date=None, end_date=None):
         return self.get_item('Open', start_date=start_date, end_date=end_date)

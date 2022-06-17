@@ -5,6 +5,8 @@ import pandas as pd
 
 app = Flask(__name__)
 
+TABLE_RESPONSIVE_CLASS = ['table', 'table-striped', 'table-hover', 'table-bordered']
+
 
 # Home page
 @app.route('/', methods=['GET', 'POST'])
@@ -33,10 +35,25 @@ def stock(symbol):
 
     return render_template(
         'stock.html',
+        company_symbol=company.get_symbol(),
         company=company.get_info('longName'),
-        table=history.to_html(classes=['table', 'table-striped', 'table-hover', 'table-bordered'], justify='left'),
+        table=history.to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),
         titles=history.columns.values,
         news=news,
+    )
+
+
+# Forecast button
+@app.route('/forecast/<string:symbol>/<string:type>')
+def forecast(symbol, type):
+    company = CompanyStock(symbol)
+    table = company.get_item(type)
+    print(table)
+    return render_template(
+        'forecast.html',
+        company=company.get_info('longName'),
+        type=type,
+        table=table.to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),
     )
 
 
