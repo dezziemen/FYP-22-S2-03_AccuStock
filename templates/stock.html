@@ -13,6 +13,10 @@
     <a href="{{ url_for('.forecast', symbol=company_symbol, type='Close') }}" id="forecast-btn" class="btn btn-success">Forecast Close</a>
   </div>
   <h2>Historical data</h2>
+  <div id="chartcontainer">
+
+  </div>
+
   <div class="container">
     <div class="table-responsive" style="max-height: 300px;">
       {{ table | safe }}
@@ -36,7 +40,126 @@
   </div>
   <script>
     var data = {{ data|safe }};
-    console.log(data);
-    console.log(data.Close);
+        console.log(data);
+        console.log(data.Close);
+
+    // split the data set into ohlc and volume
+    var ohlc = [],
+        volume = [];
+
+    function getData() {
+        for (var j in data.Date) {
+            ohlc.push([
+                data.Date[j], // the date
+                data.Open[j], // open
+                data.High[j], // high
+                data.Low[j], // low
+                data.Close[j] // close
+            ]);
+
+            volume.push([
+                data.Date[j], // the date
+                data.Volume[j] // the volume
+            ]);
+        };
+/*
+        console.log(ohlc);
+        console.log(volume);
+
+ */
+        console.log(JSON.stringify(ohlc));
+        console.log(JSON.stringify(volume));
+
+    };
+
+    function plotCharts() {
+        Highcharts.stockChart('chartcontainer', {
+            yAxis: [{
+                labels: {
+                    align: 'left'
+                },
+                height: '80%',
+                resize: {
+                    enabled: true
+                }
+            }, {
+                labels: {
+                    align: 'left'
+                },
+                top: '80%',
+                height: '20%',
+                offset: 0
+            }],
+            tooltip: {
+                shape: 'square',
+                headerShape: 'callout',
+                borderWidth: 0,
+                shadow: false,
+                positioner: function (width, height, point) {
+                    var chart = this.chart,
+                        position;
+
+                    if (point.isHeader) {
+                        position = {
+                            x: Math.max(
+                                // Left side limit
+                                chart.plotLeft,
+                                Math.min(
+                                    point.plotX + chart.plotLeft - width / 2,
+                                    // Right side limit
+                                    chart.chartWidth - width - chart.marginRight
+                                )
+                            ),
+                            y: point.plotY
+                        };
+                    } else {
+                        position = {
+                            x: point.series.chart.plotLeft,
+                            y: point.series.yAxis.top - chart.plotTop
+                        };
+                    }
+
+                    return position;
+                }
+            },
+            series: [{
+                type: 'ohlc',
+                id: 'aapl-ohlc',
+                name: 'AAPL Stock Price',
+                data: ohlc,
+                dataGrouping: {
+                            enabled: false
+                        }
+            }, {
+                type: 'column',
+                id: 'aapl-volume',
+                name: 'AAPL Volume',
+                data: volume,
+                yAxis: 1,
+                dataGrouping: {
+                            enabled: false
+                        }
+            }],
+            responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: 800
+                    },
+                    chartOptions: {
+                        rangeSelector: {
+                            inputEnabled: false
+                        }
+                    }
+                }]
+            }
+        })
+    };
+
+    $( document ).ready(function()
+    {
+        getData();
+        plotCharts();
+    });
+
   </script>
 {% endblock %}
