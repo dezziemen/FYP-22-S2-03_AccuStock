@@ -1,6 +1,5 @@
 import yfinance as yf
 import datetime
-import matplotlib.pyplot as plt
 
 
 def get_default_start_date():
@@ -81,7 +80,7 @@ class CompanyStock:
         return f"Name: {self.company.info['longName']}\nSymbol: {self.company.info['symbol']}"
 
 
-# Test
+# tests
 # if __name__ == '__main__':
 #     symbol = input('Enter ticker symbol: ')
 #     company = CompanyStock(symbol)

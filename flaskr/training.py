@@ -3,11 +3,9 @@ from keras.layers import Dense, LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-import sklearn
 import math
-import finance
+from .finance import CompanyStock
 
 
 class LSTMPrediction:
@@ -16,16 +14,16 @@ class LSTMPrediction:
     def __init__(self, data):
         # Scale data to LSTM-friendly 0-1 range
         self.scaler = MinMaxScaler(feature_range=(0, 1))
-        print(data.iloc[:, [1]])
+        # print(data.iloc[:, [1]])
         self.data = self.scaler.fit_transform(np.array(data.iloc[:, [1]]).reshape(-1, 1))
-        print(f'{self.data.size = }\n{self.data = }')
+        # print(f'{self.data.size = }\n{self.data = }')
 
     def get_train_test_data(self):
         training_size = int(len(self.data) * self.training_percent)
         training_data = self.data[:training_size]
         test_data = self.data[training_size:]
-        print(f'{training_data.size = }\n{training_data = }')
-        print(f'{test_data.size = }\n{test_data = }')
+        # print(f'{training_data.size = }\n{training_data = }')
+        # print(f'{test_data.size = }\n{test_data = }')
         return training_data, test_data
 
     def get_xy_data(self, dataset, look_back=1):
@@ -72,10 +70,10 @@ class LSTMPrediction:
         look_back = 100
         x_train, y_train = self.get_xy_data(training_data, look_back)
         x_test, y_test = self.get_xy_data(test_data, look_back)
-        print(f'{x_train.shape = }')
-        print(f'{y_train.shape = }')
-        print(f'{x_test.shape = }')
-        print(f'{y_test.shape = }')
+        # print(f'{x_train.shape = }')
+        # print(f'{y_train.shape = }')
+        # print(f'{x_test.shape = }')
+        # print(f'{y_test.shape = }')
 
         x_train = x_train.reshape(x_train.shape[0], x_train.shape[1])
         x_test = x_test.reshape(x_test.shape[0], x_test.shape[1])
@@ -88,8 +86,8 @@ class LSTMPrediction:
         test_predict = model.predict(x_test)
         train_predict = self.scaler.inverse_transform(train_predict)
         test_predict = self.scaler.inverse_transform(test_predict)
-        print(train_predict)
-        print(test_predict)
+        # print(train_predict)
+        # print(test_predict)
         math.sqrt(mean_squared_error(y_train, train_predict))
         math.sqrt(mean_squared_error(y_test, test_predict))
 
@@ -112,12 +110,12 @@ class LSTMPrediction:
             print(f'{i = }')
             if len(temp_input) > 100:
                 x_input = np.array(temp_input[1:])
-                print(f'{i} day input {x_input}')
+                # print(f'{i} day input {x_input}')
                 x_input = x_input.reshape(1, -1)
                 x_input = x_input.reshape((1, n_steps, 1))
-                print(f'{x_input = }')
+                # print(f'{x_input = }')
                 yhat = model.predict(x_input, verbose=0)
-                print(f'{i} day input {yhat}')
+                # print(f'{i} day input {yhat}')
                 # x_input = np.array(temp_input[1:])
                 temp_input.extend(yhat[0].tolist())
                 temp_input = temp_input[1:]
@@ -125,14 +123,14 @@ class LSTMPrediction:
             else:
                 x_input = x_input.reshape((1, n_steps, 1))
                 yhat = model.predict(x_input, verbose=0)
-                print(yhat[0])
+                # print(yhat[0])
                 temp_input.extend(yhat[0].tolist())
-                print(len(temp_input))
+                # print(len(temp_input))
                 lst_output.extend(yhat.tolist())
 
             i = i + 1
 
-        print(f'{lst_output = }')
+        # print(f'{lst_output = }')
 
         day_new = np.arange(1, 101)
         day_prediction = np.arange(101, 101 + days)
@@ -145,7 +143,7 @@ class LSTMPrediction:
 
 if __name__ == '__main__':
     print('Getting \'AAPL\' info...')
-    company = finance.CompanyStock('AAPL')
+    company = CompanyStock('AAPL')
     prediction = LSTMPrediction(company.get_close())
     look_back, x_train, x_test, y_train, y_test, test_data = prediction.reshape()
     model = prediction.prepare_model(look_back, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)

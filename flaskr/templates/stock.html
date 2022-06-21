@@ -12,7 +12,9 @@
     <a href="{{ url_for('.forecast', symbol=company_symbol, type='Low') }}" id="forecast-btn" class="btn btn-success">Forecast Low</a>
     <a href="{{ url_for('.forecast', symbol=company_symbol, type='Close') }}" id="forecast-btn" class="btn btn-success">Forecast Close</a>
   </div>
+
   <h2>Historical data</h2>
+  
   <div id="chartcontainer">
 
   </div>
@@ -48,18 +50,18 @@
         volume = [];
 
     function getData() {
-        for (var j in data.Date) {
+        for (var j in data.Time) {
             ohlc.push([
-                data.Date[j], // the date
+                data.Time[j], // the date
                 data.Open[j], // open
                 data.High[j], // high
-                data.Low[j], // low
+                data.Low[j],  // low
                 data.Close[j] // close
             ]);
 
             volume.push([
-                data.Date[j], // the date
-                data.Volume[j] // the volume
+                data.Time[j],   // the date
+                data.Volume[j]  // the volume
             ]);
         };
 /*

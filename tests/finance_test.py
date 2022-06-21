@@ -1,6 +1,6 @@
 import datetime
 import unittest
-from finance import CompanyStock
+from flaskr.finance import CompanyStock
 from pandas import DataFrame, Series
 
 
