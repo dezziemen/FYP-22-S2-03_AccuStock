@@ -2,9 +2,12 @@ import yfinance as yf
 import datetime
 
 
-def get_default_start_date():
+# Get date of x years before
+def get_default_start_date(years=None):
+    if years is None:
+        years = 3               # Default 10 years (3 for test)
     date_now = datetime.datetime.now()
-    return date_now.replace(date_now.year - 3)
+    return date_now.replace(date_now.year - years)
 
 
 class CompanyStock:
