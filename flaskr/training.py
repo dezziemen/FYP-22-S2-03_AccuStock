@@ -14,9 +14,7 @@ class LSTMPrediction:
     def __init__(self, data):
         # Scale data to LSTM-friendly 0-1 range
         self.scaler = MinMaxScaler(feature_range=(0, 1))
-        # print(data.iloc[:, [1]])
         self.data = self.scaler.fit_transform(np.array(data.iloc[:, [1]]).reshape(-1, 1))
-        # print(f'{self.data.size = }\n{self.data = }')
 
     def get_train_test_data(self):
         training_size = int(len(self.data) * self.training_percent)
@@ -140,12 +138,19 @@ class LSTMPrediction:
         plt.plot(day_prediction, self.scaler.inverse_transform(lst_output))
         # plt.show()
 
+    def start(self, *, days, fig_path):
+        look_back, x_train, x_test, y_train, y_test, test_data = self.reshape()
+        model = self.prepare_model(look_back, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
+        self.train(model, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, test_data=test_data)
+        self.predict(days=days, model=model, test_data=test_data)
+        plt.savefig(fig_path)
 
-if __name__ == '__main__':
-    print('Getting \'AAPL\' info...')
-    company = CompanyStock('AAPL')
-    prediction = LSTMPrediction(company.get_close())
-    look_back, x_train, x_test, y_train, y_test, test_data = prediction.reshape()
-    model = prediction.prepare_model(look_back, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
-    prediction.train(model, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, test_data=test_data)
-    prediction.predict(days=30, model=model, test_data=test_data)
+
+# if __name__ == '__main__':
+#     print('Getting \'AAPL\' info...')
+#     company = CompanyStock('AAPL')
+#     prediction = LSTMPrediction(company.get_close())
+#     look_back, x_train, x_test, y_train, y_test, test_data = prediction.reshape()
+#     model = prediction.prepare_model(look_back, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
+#     prediction.train(model, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, test_data=test_data)
+#     prediction.predict(days=30, model=model, test_data=test_data)

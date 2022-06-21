@@ -29,7 +29,7 @@ def stock(symbol):
         return render_template('home.html', searchError='Error: Stock symbol does not exist.')
 
     history = company.get_history().reset_index(level='Date')                       # Convert Date index to column
-    history['Time'] = history['Date']
+    history['Time'] = history['Date']                                               # Create Time column
     history['Date'] = pd.to_datetime(history['Date']).dt.strftime('%d %b %Y')       # Convert Timestamp to Datetime
 
     # Get news and convert timestamp to datetime
@@ -41,10 +41,10 @@ def stock(symbol):
         'stock.html',
         company_symbol=company.get_symbol(),
         company=company.get_info('longName'),
-        table=history.loc[:, history.columns != 'Time'].to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),
+        table=history.loc[:, history.columns != 'Time'].to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),        # Exclude 'Time' column
         titles=history.columns.values,
         news=news,
-        data=history.to_json()
+        data=history.to_json(),
     )
 
 
@@ -54,17 +54,21 @@ def forecast(symbol, type):
     time_now = time.time()
     company = CompanyStock(symbol)
     data = company.get_item(type)
+    data['Date'] = pd.to_datetime(data['Date']).dt.strftime('%d %b %Y')       # Convert Timestamp to Datetime
     prediction = LSTMPrediction(data)
 
     # Prepare and start prediction
-    look_back, x_train, x_test, y_train, y_test, test_data = prediction.reshape()
-    model = prediction.prepare_model(look_back, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
-    prediction.train(model, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, test_data=test_data)
-    prediction.predict(days=30, model=model, test_data=test_data)
+    # look_back, x_train, x_test, y_train, y_test, test_data = prediction.reshape()
+    # model = prediction.prepare_model(look_back, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
+    # prediction.train(model, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, test_data=test_data)
+    # prediction.predict(days=30, model=model, test_data=test_data)
 
+    # Start prediction
     folder_name = 'flaskr/static/images/'
     graph_filename = f'{str(time_now)}.png'
-    plt.savefig(folder_name + graph_filename)
+    # plt.savefig(folder_name + graph_filename)
+    prediction.start(days=30, fig_path=folder_name + graph_filename)
+
     return render_template(
         'forecast.html',
         company=company.get_info('longName'),
