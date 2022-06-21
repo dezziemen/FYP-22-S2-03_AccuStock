@@ -57,17 +57,10 @@ def forecast(symbol, type):
     data['Date'] = pd.to_datetime(data['Date']).dt.strftime('%d %b %Y')       # Convert Timestamp to Datetime
     prediction = LSTMPrediction(data)
 
-    # Prepare and start prediction
-    # look_back, x_train, x_test, y_train, y_test, test_data = prediction.reshape()
-    # model = prediction.prepare_model(look_back, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
-    # prediction.train(model, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, test_data=test_data)
-    # prediction.predict(days=30, model=model, test_data=test_data)
-
     # Start prediction
     folder_name = 'flaskr/static/images/'
-    graph_filename = f'{str(time_now)}.png'
-    # plt.savefig(folder_name + graph_filename)
-    prediction.start(days=30, fig_path=folder_name + graph_filename)
+    graph_filename = f'{str(time_now)}_{symbol}_{type}.png'             # Save time, symbol, and type
+    prediction.start(days=30, fig_path=folder_name + graph_filename)    # Start prediction and save figure
 
     return render_template(
         'forecast.html',

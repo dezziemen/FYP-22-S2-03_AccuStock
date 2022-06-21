@@ -144,6 +144,7 @@ class LSTMPrediction:
         self.train(model, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, test_data=test_data)
         self.predict(days=days, model=model, test_data=test_data)
         plt.savefig(fig_path)
+        plt.clf()
 
 
 # if __name__ == '__main__':
