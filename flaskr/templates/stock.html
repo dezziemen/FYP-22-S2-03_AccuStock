@@ -5,12 +5,12 @@
   {% include 'navbar.html' %}
 {% endblock %}
 {% block content %}
-  <h1 class="bg-secondary p-2 text-white">{{ company }}</h1>
+  <h1 class="bg-secondary p-2 text-white">{{ company }}<br>({{ company_symbol }})</h1>
   <div class="btn-group" role="group" aria-label="Basic example">
-    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Open') }}" id="forecast-btn" class="btn btn-success">Forecast Open</a>
-    <a href="{{ url_for('.forecast', symbol=company_symbol, type='High') }}" id="forecast-btn" class="btn btn-success">Forecast High</a>
-    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Low') }}" id="forecast-btn" class="btn btn-success">Forecast Low</a>
-    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Close') }}" id="forecast-btn" class="btn btn-success">Forecast Close</a>
+    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Open') }}" id="forecast_open" class="btn btn-success">Forecast Open</a>
+    <a href="{{ url_for('.forecast', symbol=company_symbol, type='High') }}" id="forecast_high" class="btn btn-success">Forecast High</a>
+    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Low') }}" id="forecast_low" class="btn btn-success">Forecast Low</a>
+    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Close') }}" id="forecast_close" class="btn btn-success">Forecast Close</a>
   </div>
 
   <h2>Historical data</h2>
@@ -23,7 +23,6 @@
     <div class="table-responsive" style="max-height: 300px;">
       {{ table | safe }}
     </div>
-    <button type="button" class="btn btn-primary">View graph</button>
   </div>
   <h2>News</h2>
   <div class="container">
@@ -42,12 +41,11 @@
   </div>
   <script>
     var data = {{ data|safe }};
-        console.log(data);
-        console.log(data.Close);
 
     // split the data set into ohlc and volume
-    var ohlc = [],
-        volume = [];
+    var ohlc = [];
+    var volume = [];
+    var companySymbol = '{{ company_symbol }}';
 
     function getData() {
         for (var j in data.Time) {
@@ -125,27 +123,27 @@
                 }
             },
             stockTools: {
-            gui: {
-                enabled: false
-            }
+              gui: {
+                  enabled: false
+              }
             },
             series: [{
                 type: 'ohlc',
                 id: 'aapl-ohlc',
-                name: 'AAPL Stock Price',
+                name: companySymbol + ' Stock Price',
                 data: ohlc,
                 dataGrouping: {
-                            enabled: false
-                        }
+                    enabled: false
+                }
             }, {
                 type: 'column',
                 id: 'aapl-volume',
-                name: 'AAPL Volume',
+                name: companySymbol + ' Stock Volume',
                 data: volume,
                 yAxis: 1,
                 dataGrouping: {
-                            enabled: false
-                        }
+                    enabled: false
+                }
             }],
             responsive: {
                 rules: [{

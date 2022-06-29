@@ -21,12 +21,14 @@ entrypoints==0.4
 executing==0.8.3
 fastjsonschema==2.15.3
 Flask==2.1.2
+Flask-SQLAlchemy==2.5.1
 flatbuffers==1.12
 fonttools==4.33.3
 gast==0.4.0
 google-auth==2.7.0
 google-auth-oauthlib==0.4.6
 google-pasta==0.2.0
+greenlet==1.1.2
 grpcio==1.46.3
 h5py==3.7.0
 idna==3.3
@@ -98,6 +100,7 @@ Send2Trash==1.8.0
 six==1.16.0
 sklearn==0.0
 soupsieve==2.3.2.post1
+SQLAlchemy==1.4.39
 stack-data==0.3.0
 tensorboard==2.9.1
 tensorboard-data-server==0.6.1

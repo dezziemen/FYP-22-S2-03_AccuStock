@@ -1,10 +1,9 @@
 from flask import Blueprint, request, render_template
 from .finance import CompanyStock
 from .training import LSTMPrediction
-import matplotlib.pyplot as plt
 import pandas as pd
 import time
-
+from flaskr.models import db, Search
 
 views = Blueprint('views', __name__)
 
@@ -15,8 +14,15 @@ TABLE_RESPONSIVE_CLASS = ['table', 'table-striped', 'table-hover', 'table-border
 @views.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'GET':
+        # aapl = Search(time=time.time(), search_term='aapl')
+        # msft = Search(time=time.time(), search_term='msft')
+        # print(Search.query.all())
+        # db.session.add(aapl)
+        # db.session.add(msft)
+        # db.session.commit()
+        # print(Search.query.all())
         return render_template('home.html')
-    return stock(request.form.get('searchSymbol'))
+    return stock(request.form.get('search_symbol'))
 
 
 # View stock page
@@ -26,7 +32,7 @@ def stock(symbol):
 
     # If company stock symbol does not exist
     if company.get_symbol() is None:
-        return render_template('home.html', searchError='Error: Stock symbol does not exist.')
+        return render_template('home.html', search_error='Error: Stock symbol does not exist.')
 
     history = company.get_history().reset_index(level='Date')                       # Convert Date index to column
     history['Time'] = history['Date']                                               # Create Time column
@@ -42,7 +48,7 @@ def stock(symbol):
         company_symbol=company.get_symbol(),
         company=company.get_info('longName'),
         table=history.loc[:, history.columns != 'Time'].to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),        # Exclude 'Time' column
-        titles=history.columns.values,
+        # titles=history.columns.values,
         news=news,
         data=history.to_json(),
     )
