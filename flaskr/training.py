@@ -33,9 +33,6 @@ class LSTMPrediction:
             y_data.append(dataset[(i + look_back), 0])
         return np.array(x_data), np.array(y_data)
 
-    # def reshape_lstm(self, dataset):
-    #     return dataset.reshape(dataset.shape[0], dataset.shape[1], 1)
-
     def prepare_model(self, look_back, *, x_train, y_train, x_test, y_test):
         model = Sequential()
         model.add(LSTM(50, return_sequences=True, input_shape=(look_back, 1)))
@@ -128,23 +125,27 @@ class LSTMPrediction:
 
             i = i + 1
 
-        # print(f'{lst_output = }')
-
         day_new = np.arange(1, 101)
         day_prediction = np.arange(101, 101 + days)
         df3 = self.data.tolist()
         df3.extend(lst_output)
-        plt.plot(day_new, self.scaler.inverse_transform(self.data[-100:]))
-        plt.plot(day_prediction, self.scaler.inverse_transform(lst_output))
+        data_inversed = self.scaler.inverse_transform((self.data[-100:]))
+        predicted_data_inversed = self.scaler.inverse_transform(lst_output)
+        plt.plot(day_new, data_inversed)
+        plt.plot(day_prediction, predicted_data_inversed)
+
+        return predicted_data_inversed
         # plt.show()
 
     def start(self, *, days, fig_path):
         look_back, x_train, x_test, y_train, y_test, test_data = self.reshape()
         model = self.prepare_model(look_back, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
         self.train(model, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, test_data=test_data)
-        self.predict(days=days, model=model, test_data=test_data)
+        predicted_data = self.predict(days=days, model=model, test_data=test_data)
         plt.savefig(fig_path)
         plt.clf()
+
+        return predicted_data
 
 
 # if __name__ == '__main__':
