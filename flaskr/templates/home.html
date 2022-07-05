@@ -6,12 +6,33 @@
 {% endblock %}
 {% block content %}
   <h1>Stock prediction app</h1>
-  <form method="post" class="d-flex" role="search">
-    <label for="searchSymbol" class="col-sm-2 col-form-label">Enter stock symbol</label>
-    <div class="col-sm-10">
-      <input class="form-control" type="search" name="search_symbol" id="search_symbol" placeholder="Stock symbol" aria-label="Search">
-      <span id="search_error" class="text-danger">{{ search_error }}</span><br>
-      <button class="btn btn-outline-success" type="submit">Search</button>
+  <div class="container">
+    <form method="post" class="d-flex" role="search">
+      <label for="searchSymbol" class="col-sm-2 col-form-label">Enter stock symbol</label>
+      <div class="col-sm-10">
+        <input class="form-control" type="search" name="search_symbol" id="search_symbol" placeholder="Stock symbol" aria-label="Search">
+        <span id="search_error" class="text-danger">{{ search_error }}</span><br>
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </div>
+    </form>
+  </div>
+  <div class="container">
+    <h2>Top searches</h2>
+    <div class="table table-striped table-hover table-bordered">
+      <table>
+        <tr>
+          <th>Rank</th>
+          <th>Search Term</th>
+          <th>Count</th>
+        </tr>
+        {% for search in searches %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ search[0] }}</td>
+            <td>{{ search[1] }}</td>
+          </tr>
+        {% endfor %}
+      </table>
     </div>
-  </form>
+  </div>
 {% endblock %}

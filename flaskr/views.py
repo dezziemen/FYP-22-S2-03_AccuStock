@@ -5,6 +5,7 @@ from .training import LSTMPrediction
 import pandas as pd
 import datetime
 import time
+from collections import Counter
 
 views = Blueprint('views', __name__)
 
@@ -15,14 +16,21 @@ TABLE_RESPONSIVE_CLASS = ['table', 'table-striped', 'table-hover', 'table-border
 @views.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'GET':
-        # aapl = Search(time=time.time(), search_term='aapl')
-        # msft = Search(time=time.time(), search_term='msft')
-        # print(Search.query.all())
-        # db.session.add(aapl)
-        # db.session.add(msft)
-        # db.session.commit()
-        # print(Search.query.all())
-        return render_template('home.html')
+        all_searches = [x.__dict__ for x in Search.query.all()]
+        # for search in top_searches:
+        #     search['time'] = datetime.datetime.fromtimestamp(search['time']).strftime('%d %b %Y %H:%M:%S')
+
+        # Count all search terms
+        count_searches = dict()
+        for search in all_searches:
+            count_searches[search['search_term'].upper()] = count_searches.get(search['search_term'].upper(), 0) + 1
+        print(f'{count_searches=}')
+
+        # Get top 3 search terms
+        top_searches = Counter(count_searches).most_common(3)
+        print(f'{top_searches=}')
+
+        return render_template('home.html', searches=top_searches)
     search_symbol = request.form.get('search_symbol')
     search = Search(time=time.time(), search_term=search_symbol)
     db.session.add(search)
