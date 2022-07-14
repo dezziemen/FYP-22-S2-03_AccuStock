@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template
-from flaskr.models import db, Search
+from flaskr.models import db, Search, PredictedTable, PredictedRow
 from .finance import CompanyStock
 from .training import LSTMPrediction
 import pandas as pd
@@ -24,11 +24,9 @@ def home():
         count_searches = dict()
         for search in all_searches:
             count_searches[search['search_term'].upper()] = count_searches.get(search['search_term'].upper(), 0) + 1
-        print(f'{count_searches=}')
 
         # Get top 3 search terms
         top_searches = Counter(count_searches).most_common(3)
-        print(f'{top_searches=}')
 
         return render_template('home.html', searches=top_searches)
     search_symbol = request.form.get('search_symbol')
@@ -67,33 +65,55 @@ def stock(symbol):
     )
 
 
+# View accuracy page
+@views.route('/accuracy/<string:symbol>/<stock_type>')
+def accuracy(symbol, stock_type):
+    company = CompanyStock(symbol)
+    data = company.get_item(stock_type)
+    return render_template(
+        'accuracy.html',
+        company=company.get_info('longName'),
+        stock_type=stock_type,
+    )
+
+
 # Forecast button
-@views.route('/forecast/<string:symbol>/<string:type>')
-def forecast(symbol, type, days=None):
+@views.route('/forecast/<string:symbol>/<stock_type>')
+def forecast(symbol, stock_type, days=None):
     if days is None:
         days = 30
 
     time_now = time.time()
     company = CompanyStock(symbol)
-    data = company.get_item(type)
+    data = company.get_item(stock_type)
     prediction = LSTMPrediction(data)
 
     # Start prediction
     folder_name = 'flaskr/static/images/'
-    graph_filename = f'{str(time_now)}_{symbol}_{type}.png'                                 # Save time, symbol, and type
+    graph_filename = f'{str(time_now)}_{symbol}_{stock_type}.png'                                 # Save time, symbol, and type
     predicted_data = prediction.start(days=days, fig_path=folder_name + graph_filename)     # Start prediction and save figure
     predicted_data = [x[0] for x in predicted_data]
 
+    # Data conversion
     last_date = data['Date'].iloc[-1]
     predicted_dates = [(last_date + datetime.timedelta(days=x+1)) for x in range(days)]
-    predicted = pd.DataFrame(list(zip(predicted_dates, predicted_data)), columns=['Date', type])
+    predicted = pd.DataFrame(list(zip(predicted_dates, predicted_data)), columns=['Date', stock_type])
     combined_data = pd.concat([data, predicted], ignore_index=True)                         # Combine data
     combined_data['Date'] = pd.to_datetime(combined_data['Date']).dt.strftime('%d %b %Y')   # Convert Timestamp to Datetime
+
+    # Store data
+    predicted_table = PredictedTable(time=time.time(), symbol=symbol, stock_type=stock_type)
+    db.session.add(predicted_table)
+    db.session.flush()
+
+    predicted_rows = [PredictedRow(time=int(pd.to_datetime(row['Date']).timestamp()), value=row[stock_type], table_id=predicted_table.id) for _, row in predicted.iterrows()]
+    db.session.add_all(predicted_rows)
+    db.session.commit()
 
     return render_template(
         'forecast.html',
         company=company.get_info('longName'),
-        type=type,
+        stock_type=stock_type,
         table=combined_data.to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),
         graph_filename='/images/' + graph_filename,
     )

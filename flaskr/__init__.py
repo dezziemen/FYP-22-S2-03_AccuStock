@@ -8,7 +8,9 @@ def create_app():
     
     app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
     app.config['SECRET_KEY'] = 'secret'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////' + os.path.join(path, 'accustock.db')
+    db_path = 'sqlite:///' + os.path.join(path, 'accustock.db')
+    print(f'{db_path=}')
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_path
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 

@@ -7,12 +7,17 @@
 {% block content %}
   <h1 class="bg-secondary p-2 text-white">{{ company }}<br>({{ company_symbol }})</h1>
   <div class="btn-group" role="group" aria-label="Basic example">
-    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Open') }}" id="forecast_open" class="btn btn-success">Forecast Open</a>
-    <a href="{{ url_for('.forecast', symbol=company_symbol, type='High') }}" id="forecast_high" class="btn btn-success">Forecast High</a>
-    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Low') }}" id="forecast_low" class="btn btn-success">Forecast Low</a>
-    <a href="{{ url_for('.forecast', symbol=company_symbol, type='Close') }}" id="forecast_close" class="btn btn-success">Forecast Close</a>
+    <a href="{{ url_for('.forecast', symbol=company_symbol, stock_type='Open') }}" id="forecast_open" class="btn btn-success">Forecast Open</a>
+    <a href="{{ url_for('.forecast', symbol=company_symbol, stock_type='High') }}" id="forecast_high" class="btn btn-success">Forecast High</a>
+    <a href="{{ url_for('.forecast', symbol=company_symbol, stock_type='Low') }}" id="forecast_low" class="btn btn-success">Forecast Low</a>
+    <a href="{{ url_for('.forecast', symbol=company_symbol, stock_type='Close') }}" id="forecast_close" class="btn btn-success">Forecast Close</a>
   </div>
-
+  <div class="btn-group" role="group" aria-label="Basic example">
+    <a href="{{ url_for('.accuracy', symbol=company_symbol, stock_type='Open') }}" id="accuracy_open" class="btn btn-primary">View Open accuracy</a>
+    <a href="{{ url_for('.accuracy', symbol=company_symbol, stock_type='High') }}" id="accuracy_high" class="btn btn-primary">View High accuracy</a>
+    <a href="{{ url_for('.accuracy', symbol=company_symbol, stock_type='Low') }}" id="accuracy_low" class="btn btn-primary">View Low accuracy</a>
+    <a href="{{ url_for('.accuracy', symbol=company_symbol, stock_type='Close') }}" id="accuracy_close" class="btn btn-primary">View Close accuracy</a>
+  </div>
   <h2>Historical data</h2>
   
   <div id="chartcontainer">
