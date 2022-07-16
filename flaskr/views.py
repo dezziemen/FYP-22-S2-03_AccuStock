@@ -59,7 +59,6 @@ def stock(symbol):
         company_symbol=company.get_symbol(),
         company=company.get_info('longName'),
         table=history.loc[:, history.columns != 'Time'].to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),        # Exclude 'Time' column
-        # titles=history.columns.values,
         news=news,
         data=history.to_json(),
     )
@@ -90,7 +89,7 @@ def forecast(symbol, stock_type, days=None):
 
     # Start prediction
     folder_name = 'flaskr/static/images/'
-    graph_filename = f'{str(time_now)}_{symbol}_{stock_type}.png'                                 # Save time, symbol, and type
+    graph_filename = f'{str(time_now)}_{symbol}_{stock_type}.png'                           # Save time, symbol, and type
     predicted_data = prediction.start(days=days, fig_path=folder_name + graph_filename)     # Start prediction and save figure
     predicted_data = [x[0] for x in predicted_data]
 
@@ -102,7 +101,7 @@ def forecast(symbol, stock_type, days=None):
     combined_data['Date'] = pd.to_datetime(combined_data['Date']).dt.strftime('%d %b %Y')   # Convert Timestamp to Datetime
 
     # Store data
-    predicted_table = PredictedTable(time=time.time(), symbol=symbol, stock_type=stock_type)
+    predicted_table = PredictedTable(time=int(time.time()), symbol=symbol, stock_type=stock_type)
     db.session.add(predicted_table)
     db.session.flush()
 

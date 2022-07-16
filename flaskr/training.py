@@ -80,17 +80,12 @@ class LSTMPrediction:
 
     def predict(self, *, days, model, test_data):
         x_input = test_data[-100:].reshape(1, -1)
-        print(x_input.shape)
-
         temp_input = list(x_input)[0].tolist()
-        print(temp_input)
-
         lst_output = []
         n_steps = 100
         i = 0
 
         while i < days:
-            print(f'{i = }')
             if len(temp_input) > 100:
                 x_input = np.array(temp_input[1:])
                 x_input = x_input.reshape(1, -1)
@@ -115,6 +110,8 @@ class LSTMPrediction:
         predicted_data_inversed = self.scaler.inverse_transform(lst_output)
         plt.plot(day_new, data_inversed)
         plt.plot(day_prediction, predicted_data_inversed)
+
+        print('Prediction done!')
 
         return predicted_data_inversed
 
