@@ -44,7 +44,7 @@ class LSTMPrediction:
             epochs=8,
             # batch_size=64,
             verbose=1,
-            use_multiprocessing=True
+            multiprocessing=True,
         )
         return model
 
