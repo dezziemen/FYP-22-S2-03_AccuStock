@@ -41,8 +41,8 @@ class LSTMPrediction:
             x_train,
             y_train,
             validation_data=(x_test, y_test),
-            epochs=16,
-            batch_size=64,
+            epochs=8,
+            # batch_size=64,
             verbose=1,
             use_multiprocessing=True
         )
