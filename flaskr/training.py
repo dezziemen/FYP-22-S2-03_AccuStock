@@ -37,7 +37,15 @@ class LSTMPrediction:
         model.add(LSTM(50))
         model.add(Dense(1))
         model.compile(loss='mean_squared_error', optimizer='adam')
-        model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=100, batch_size=64, verbose=1)
+        model.fit(
+            x_train,
+            y_train,
+            validation_data=(x_test, y_test),
+            epochs=16,
+            batch_size=64,
+            verbose=1,
+            use_multiprocessing=True
+        )
         return model
 
     def plot_prediction(self, train_predict, test_predict):
