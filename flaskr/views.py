@@ -90,7 +90,15 @@ def forecast(symbol, stock_type, days=None):
     # Start prediction
     folder_name = 'flaskr/static/images/'
     graph_filename = f'{str(time_now)}_{symbol}_{stock_type}.png'                           # Save time, symbol, and type
-    predicted_data = prediction.start(days=days, fig_path=folder_name + graph_filename)     # Start prediction and save figure
+    # Start prediction and save figure
+    predicted_data = prediction.start(
+        days=days,
+        fig_dir=folder_name,
+        fig_name=graph_filename,
+        save=True,
+        save_path='models/',
+        save_name=symbol,
+    )
     predicted_data = [x[0] for x in predicted_data]
 
     # Data conversion
@@ -101,11 +109,22 @@ def forecast(symbol, stock_type, days=None):
     combined_data['Date'] = pd.to_datetime(combined_data['Date']).dt.strftime('%d %b %Y')   # Convert Timestamp to Datetime
 
     # Store data
-    predicted_table = PredictedTable(time=int(time.time()), symbol=symbol, stock_type=stock_type)
+    # Create PredictedTable
+    predicted_table = PredictedTable(
+        time=int(time.time()),
+        symbol=symbol,
+        stock_type=stock_type
+    )
     db.session.add(predicted_table)
-    db.session.flush()
+    db.session.flush()              # Flush to get new table id
 
-    predicted_rows = [PredictedRow(time=int(pd.to_datetime(row['Date']).timestamp()), value=row[stock_type], table_id=predicted_table.id) for _, row in predicted.iterrows()]
+    # Create PredictedRow objects in a list
+    predicted_rows = [
+        PredictedRow(
+            time=int(pd.to_datetime(row['Date']).timestamp()),
+            value=row[stock_type],
+            table_id=predicted_table.id)
+        for _, row in predicted.iterrows()]
     db.session.add_all(predicted_rows)
     db.session.commit()
 
