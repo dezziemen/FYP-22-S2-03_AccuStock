@@ -115,4 +115,6 @@ def forecast(symbol, stock_type, days=None):
         stock_type=stock_type,
         table=combined_data.to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),
         graph_filename='/images/' + graph_filename,
+        data=data.to_json(),
+        predicted=predicted.to_json()
     )

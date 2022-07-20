@@ -7,10 +7,85 @@
 {% block content %}
   <h1 class="bg-secondary p-2 text-white">{{ company }}</h1>
   <h2>Forecast page ({{ stock_type }})</h2>
+  <div id="predictcontainer">
+
+  </div>
   <img src={{ graph_filename }} alt="">
   <div class="container">
     <div class="table-responsive highlight-row-30" style="max-height: 1000px;">
       {{ table | safe }}
     </div>
   </div>
+
+  <script>
+    var data = {{ data|safe }};
+    var predicted = {{ predicted|safe }};
+
+    //store data to be placed into graph
+    var graphData = [];
+    var companySymbol = '{{ company_symbol }}';
+    var dataCounter;
+
+    /*
+    console.log(data.Date);
+    console.log(data.{{stock_type}});
+    console.log(predicted.Date);
+    console.log(predicted.{{stock_type}});
+    console.log(companySymbol);
+    */
+
+    function getData() {
+        //reset counter
+        dataCounter = 0;
+        //loop to add stocks data into array
+        for (var j in data.Date) {
+            graphData.push([
+                data.Date[j], // the date
+                data.{{stock_type}}[j], // the selected data type
+            ])
+            //used to store the date of where the data stops, and where the prediction begins
+            dataCounter = data.Date[j];
+        }
+        //loop to add predicted data into array
+        for (var k in predicted.Date) {
+            graphData.push([
+                predicted.Date[k], // the date
+                predicted.{{stock_type}}[k], // the selected data type
+            ])
+        }
+
+        console.log(dataCounter);
+    }
+
+    function plotCharts() {
+        // Create the chart
+        Highcharts.stockChart('predictcontainer', {
+            stockTools: {
+              gui: {
+                  enabled: false
+              }
+            },
+            series: [{
+                name: "{{ stock_type }}",
+                data: graphData,
+                //indicate where prediction starts
+                zoneAxis: 'x',
+                zones: [{
+                    value: dataCounter
+                }, {
+                    color:'orange'
+                }]
+            }]
+        });
+    }
+
+    $( document ).ready(function()
+    {
+        getData();
+        plotCharts();
+    })
+
+  </script>
+
+
 {% endblock %}
