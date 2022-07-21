@@ -2,7 +2,7 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import math
 from pathlib import Path
@@ -51,10 +51,11 @@ class LSTMPrediction:
                 epochs=8,           # Training iterations
                 # batch_size=64,      # Number of batch per epoch
                 verbose=1,
-                use_multiprocessing=True,
+                # use_multiprocessing=True,
             )
 
         if save and not Path(save_path + save_name).exists():
+            print(f'Saving model to \'{save_path + save_name}\'')
             Path(save_path).mkdir(parents=True, exist_ok=True)
             model.save(save_path + save_name, overwrite=True)
 
@@ -73,9 +74,9 @@ class LSTMPrediction:
         test_predict_plot[len(train_predict) + (look_back*2) + 1:len(self.data) - 1, :] = test_predict
 
         # Plot baseline and predictions
-        plt.plot(self.scaler.inverse_transform(self.data))
-        plt.plot(train_predict_plot)
-        plt.plot(test_predict_plot)
+        # plt.plot(self.scaler.inverse_transform(self.data))
+        # plt.plot(train_predict_plot)
+        # plt.plot(test_predict_plot)
 
     def reshape(self):
         training_data, test_data = self.get_train_test_data()
@@ -128,14 +129,14 @@ class LSTMPrediction:
         df3.extend(lst_output)
         data_inversed = self.scaler.inverse_transform((self.data[-100:]))
         predicted_data_inversed = self.scaler.inverse_transform(lst_output)
-        plt.plot(day_new, data_inversed)
-        plt.plot(day_prediction, predicted_data_inversed)
+        # plt.plot(day_new, data_inversed)
+        # plt.plot(day_prediction, predicted_data_inversed)
 
         print('Prediction done!')
 
         return predicted_data_inversed
 
-    def start(self, *, days, fig_dir, fig_name, save=False, save_path='', save_name=''):
+    def start(self, *, days, save=False, save_path='', save_name=''):
         look_back, x_train, x_test, y_train, y_test, test_data = self.reshape()
         model = self.prepare_model(
             look_back,
@@ -158,8 +159,8 @@ class LSTMPrediction:
         predicted_data = self.predict(days=days, model=model, test_data=test_data)
 
         # Create path if not exists
-        Path(fig_dir).mkdir(parents=True, exist_ok=True)
-        plt.savefig(fig_dir + fig_name)
-        plt.clf()
+        # Path(fig_dir).mkdir(parents=True, exist_ok=True)
+        # plt.savefig(fig_dir + fig_name)
+        # plt.clf()
 
         return predicted_data

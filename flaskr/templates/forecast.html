@@ -7,7 +7,7 @@
 {% block content %}
   <h1 class="bg-secondary p-2 text-white">{{ company }}</h1>
   <h2>Forecast page ({{ stock_type }})</h2>
-  <img src={{ graph_filename }} alt="">
+{#  <img src={{ graph_filename }} alt="">#}
   <div class="container">
     <div class="table-responsive highlight-row-30" style="max-height: 1000px;">
       {{ table | safe }}

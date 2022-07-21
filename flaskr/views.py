@@ -88,17 +88,9 @@ def forecast(symbol, stock_type, days=None):
     prediction = LSTMPrediction(data)
 
     # Start prediction
-    folder_name = 'flaskr/static/images/'
-    graph_filename = f'{str(time_now)}_{symbol}_{stock_type}.png'                           # Save time, symbol, and type
-    # Start prediction and save figure
-    predicted_data = prediction.start(
-        days=days,
-        fig_dir=folder_name,
-        fig_name=graph_filename,
-        save=True,
-        save_path='models/',
-        save_name=symbol,
-    )
+    # folder_name = 'flaskr/static/images/'
+    # graph_filename = f'{str(time_now)}_{symbol}_{stock_type}.png'           # Save time, symbol, and type
+    predicted_data = prediction.start(days=days, save=True, save_path='models/', save_name=symbol)      # Start prediction and save figure
     predicted_data = [x[0] for x in predicted_data]
 
     # Data conversion
@@ -109,22 +101,11 @@ def forecast(symbol, stock_type, days=None):
     combined_data['Date'] = pd.to_datetime(combined_data['Date']).dt.strftime('%d %b %Y')   # Convert Timestamp to Datetime
 
     # Store data
-    # Create PredictedTable
-    predicted_table = PredictedTable(
-        time=int(time.time()),
-        symbol=symbol,
-        stock_type=stock_type
-    )
+    predicted_table = PredictedTable(time=int(time.time()), symbol=symbol, stock_type=stock_type)
     db.session.add(predicted_table)
-    db.session.flush()              # Flush to get new table id
+    db.session.flush()
 
-    # Create PredictedRow objects in a list
-    predicted_rows = [
-        PredictedRow(
-            time=int(pd.to_datetime(row['Date']).timestamp()),
-            value=row[stock_type],
-            table_id=predicted_table.id)
-        for _, row in predicted.iterrows()]
+    predicted_rows = [PredictedRow(time=int(pd.to_datetime(row['Date']).timestamp()), value=row[stock_type], table_id=predicted_table.id) for _, row in predicted.iterrows()]
     db.session.add_all(predicted_rows)
     db.session.commit()
 
@@ -133,5 +114,7 @@ def forecast(symbol, stock_type, days=None):
         company=company.get_info('longName'),
         stock_type=stock_type,
         table=combined_data.to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),
-        graph_filename='/images/' + graph_filename,
+        # graph_filename='/images/' + graph_filename,
+        data=data.to_json(),
+        predicted=predicted.to_json()
     )
