@@ -1,10 +1,11 @@
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense, LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import math
+from pathlib import Path
 
 
 class LSTMPrediction:
@@ -30,22 +31,34 @@ class LSTMPrediction:
             y_data.append(dataset[(i + look_back), 0])
         return np.array(x_data), np.array(y_data)
 
-    def prepare_model(self, look_back, *, x_train, y_train, x_test, y_test):
-        model = Sequential()
-        model.add(LSTM(50, return_sequences=True, input_shape=(look_back, 1)))
-        model.add(LSTM(50, return_sequences=True))
-        model.add(LSTM(50))
-        model.add(Dense(1))
-        model.compile(loss='mean_squared_error', optimizer='adam')
-        model.fit(
-            x_train,
-            y_train,
-            validation_data=(x_test, y_test),
-            epochs=8,           # Training iterations
-            # batch_size=64,      # Number of batch per epoch
-            verbose=1,
-            use_multiprocessing=True,
-        )
+    def prepare_model(self, look_back, *, x_train, y_train, x_test, y_test, save=False, save_path='', save_name=''):
+        if save and Path(save_path + save_name).exists():
+            print(f'Model exists: \'{save_path}{save_name}\'')
+            model = load_model(save_path + save_name)
+
+        else:
+            print('Model does not exist. Training model now...')
+            model = Sequential()
+            model.add(LSTM(50, return_sequences=True, input_shape=(look_back, 1)))
+            model.add(LSTM(50, return_sequences=True))
+            model.add(LSTM(50))
+            model.add(Dense(1))
+            model.compile(loss='mean_squared_error', optimizer='adam')
+            model.fit(
+                x_train,
+                y_train,
+                validation_data=(x_test, y_test),
+                epochs=8,           # Training iterations
+                # batch_size=64,      # Number of batch per epoch
+                verbose=1,
+                # use_multiprocessing=True,
+            )
+
+        if save and not Path(save_path + save_name).exists():
+            print(f'Saving model to \'{save_path + save_name}\'')
+            Path(save_path).mkdir(parents=True, exist_ok=True)
+            model.save(save_path + save_name, overwrite=True)
+
         return model
 
     def plot_prediction(self, train_predict, test_predict):
@@ -61,9 +74,9 @@ class LSTMPrediction:
         test_predict_plot[len(train_predict) + (look_back*2) + 1:len(self.data) - 1, :] = test_predict
 
         # Plot baseline and predictions
-        plt.plot(self.scaler.inverse_transform(self.data))
-        plt.plot(train_predict_plot)
-        plt.plot(test_predict_plot)
+        # plt.plot(self.scaler.inverse_transform(self.data))
+        # plt.plot(train_predict_plot)
+        # plt.plot(test_predict_plot)
 
     def reshape(self):
         training_data, test_data = self.get_train_test_data()
@@ -116,19 +129,38 @@ class LSTMPrediction:
         df3.extend(lst_output)
         data_inversed = self.scaler.inverse_transform((self.data[-100:]))
         predicted_data_inversed = self.scaler.inverse_transform(lst_output)
-        plt.plot(day_new, data_inversed)
-        plt.plot(day_prediction, predicted_data_inversed)
+        # plt.plot(day_new, data_inversed)
+        # plt.plot(day_prediction, predicted_data_inversed)
 
         print('Prediction done!')
 
         return predicted_data_inversed
 
-    def start(self, *, days, fig_path):
+    def start(self, *, days, save=False, save_path='', save_name=''):
         look_back, x_train, x_test, y_train, y_test, test_data = self.reshape()
-        model = self.prepare_model(look_back, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)
-        self.train(model, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, test_data=test_data)
+        model = self.prepare_model(
+            look_back,
+            x_train=x_train,
+            x_test=x_test,
+            y_train=y_train,
+            y_test=y_test,
+            save=save,
+            save_path=save_path,
+            save_name=save_name,
+        )
+        self.train(
+            model,
+            x_train=x_train,
+            x_test=x_test,
+            y_train=y_train,
+            y_test=y_test,
+            test_data=test_data
+        )
         predicted_data = self.predict(days=days, model=model, test_data=test_data)
-        plt.savefig(fig_path)
-        plt.clf()
+
+        # Create path if not exists
+        # Path(fig_dir).mkdir(parents=True, exist_ok=True)
+        # plt.savefig(fig_dir + fig_name)
+        # plt.clf()
 
         return predicted_data
