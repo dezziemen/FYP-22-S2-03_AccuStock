@@ -52,7 +52,6 @@ class CompanyStock:
             end_date = self.end_date
 
         history = self.get_history(start_date=start_date, end_date=end_date)
-        # print(f'{history[item] = }')
         return history[[item]].reset_index()
 
     def get_open(self, *, start_date=None, end_date=None):
@@ -81,20 +80,3 @@ class CompanyStock:
 
     def __str__(self):
         return f"Name: {self.company.info['longName']}\nSymbol: {self.company.info['symbol']}"
-
-
-# tests
-# if __name__ == '__main__':
-#     symbol = input('Enter ticker symbol: ')
-#     company = CompanyStock(symbol)
-#     print(company)
-#     print(company.get_news())
-    # print(company.get_symbol())
-    # company_history = company.get_history()
-    # print(company_history.head())
-    # print(company_history.tail())
-    # print(company.get_open())
-    # print(company.get_high())
-    # print(company.get_low())
-    # print(close := company.get_close())
-    # print(company.get_dividends())

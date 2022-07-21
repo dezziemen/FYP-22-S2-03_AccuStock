@@ -15,16 +15,22 @@ class CompanyStockTest(unittest.TestCase):
         self.assertIsInstance(self.company.get_history(), DataFrame)
 
     def test_get_open(self):
-        self.assertIsInstance(self.company.get_open(), Series)
+        self.assertIsInstance(self.company.get_open(), DataFrame)
 
     def test_get_high(self):
-        self.assertIsInstance(self.company.get_high(), Series)
+        self.assertIsInstance(self.company.get_high(), DataFrame)
 
     def test_get_low(self):
-        self.assertIsInstance(self.company.get_low(), Series)
+        self.assertIsInstance(self.company.get_low(), DataFrame)
 
     def test_get_close(self):
-        self.assertIsInstance(self.company.get_close(), Series)
+        self.assertIsInstance(self.company.get_close(), DataFrame)
+
+    def test_get_dividends(self):
+        self.assertIsInstance(self.company.get_dividends(), DataFrame)
+
+    def test_get_news(self):
+        self.assertIsInstance(self.company.get_news(), list)
 
     def test_set_start_date(self):
         start_date = datetime.datetime.now().replace(datetime.datetime.now().year - 2)

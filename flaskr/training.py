@@ -32,6 +32,7 @@ class LSTMPrediction:
         return np.array(x_data), np.array(y_data)
 
     def prepare_model(self, look_back, *, x_train, y_train, x_test, y_test, save=False, save_path='', save_name=''):
+        # If already has model
         if save and Path(save_path + save_name).exists():
             print(f'Model exists: \'{save_path}{save_name}\'')
             model = load_model(save_path + save_name)
@@ -54,6 +55,7 @@ class LSTMPrediction:
                 # use_multiprocessing=True,
             )
 
+        # Save model
         if save and not Path(save_path + save_name).exists():
             print(f'Saving model to \'{save_path + save_name}\'')
             Path(save_path).mkdir(parents=True, exist_ok=True)
@@ -61,22 +63,22 @@ class LSTMPrediction:
 
         return model
 
-    def plot_prediction(self, train_predict, test_predict):
-        # Shift train predictions for plotting
-        look_back = 100
-        train_predict_plot = np.empty_like(self.data)
-        train_predict_plot[:, :] = np.nan
-        train_predict_plot[look_back:len(train_predict) + look_back, :] = train_predict
-
-        # Shift test predictions for plotting
-        test_predict_plot = np.empty_like(self.data)
-        test_predict_plot[:, :] = np.nan
-        test_predict_plot[len(train_predict) + (look_back*2) + 1:len(self.data) - 1, :] = test_predict
-
-        # Plot baseline and predictions
-        # plt.plot(self.scaler.inverse_transform(self.data))
-        # plt.plot(train_predict_plot)
-        # plt.plot(test_predict_plot)
+    # def plot_prediction(self, train_predict, test_predict):
+    #     # Shift train predictions for plotting
+    #     look_back = 100
+    #     train_predict_plot = np.empty_like(self.data)
+    #     train_predict_plot[:, :] = np.nan
+    #     train_predict_plot[look_back:len(train_predict) + look_back, :] = train_predict
+    #
+    #     # Shift test predictions for plotting
+    #     test_predict_plot = np.empty_like(self.data)
+    #     test_predict_plot[:, :] = np.nan
+    #     test_predict_plot[len(train_predict) + (look_back*2) + 1:len(self.data) - 1, :] = test_predict
+    #
+    #     # Plot baseline and predictions
+    #     plt.plot(self.scaler.inverse_transform(self.data))
+    #     plt.plot(train_predict_plot)
+    #     plt.plot(test_predict_plot)
 
     def reshape(self):
         training_data, test_data = self.get_train_test_data()
@@ -89,7 +91,7 @@ class LSTMPrediction:
 
         return look_back, x_train, x_test, y_train, y_test, test_data
 
-    def train(self, model, *, x_train, x_test, y_train, y_test, test_data):
+    def train(self, model, *, x_train, x_test, y_train, y_test):
         train_predict = model.predict(x_train)
         test_predict = model.predict(x_test)
 
@@ -123,11 +125,11 @@ class LSTMPrediction:
 
             i = i + 1
 
-        day_new = np.arange(1, 101)
-        day_prediction = np.arange(101, 101 + days)
+        # day_new = np.arange(1, 101)
+        # day_prediction = np.arange(101, 101 + days)
         df3 = self.data.tolist()
         df3.extend(lst_output)
-        data_inversed = self.scaler.inverse_transform((self.data[-100:]))
+        # data_inversed = self.scaler.inverse_transform((self.data[-100:]))
         predicted_data_inversed = self.scaler.inverse_transform(lst_output)
         # plt.plot(day_new, data_inversed)
         # plt.plot(day_prediction, predicted_data_inversed)
@@ -154,7 +156,6 @@ class LSTMPrediction:
             x_test=x_test,
             y_train=y_train,
             y_test=y_test,
-            test_data=test_data
         )
         predicted_data = self.predict(days=days, model=model, test_data=test_data)
 

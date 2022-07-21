@@ -55,15 +55,12 @@
     var data = {{ data|safe }};
 
     {# If comparison data is present #}
-    {% if compare_company is defined %}
-      // Assign comparison data if exists
+    {% if compare_data is defined %}
       var compareData = {{ compare_data|safe }};
 
       // Do graph here
       console.log('compareData = ' + JSON.stringify(compareData));
-
     {% endif %}
-
 
     // split the data set into ohlc and volume
     var ohlc = [];
