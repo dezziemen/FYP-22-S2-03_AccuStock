@@ -29,16 +29,23 @@ def home():
         top_searches = Counter(count_searches).most_common(3)
 
         return render_template('home.html', searches=top_searches)
+
+    # Get search symbol
     search_symbol = request.form.get('search_symbol')
     search = Search(time=time.time(), search_term=search_symbol)
+
+    # Get compare symbol
+    compare_symbol = request.form.get('compare_symbol')
+
     db.session.add(search)
     db.session.commit()
-    return stock(search_symbol)
+    return stock(search_symbol, compare_symbol)
 
 
 # View stock page
-@views.route('/stock/<string:symbol>')
-def stock(symbol):
+@views.route('/stock/stock=<string:symbol>')
+@views.route('/stock/stock=<string:symbol>&compare=<string:compare>')
+def stock(symbol, compare=''):
     company = CompanyStock(symbol)
 
     # If company stock symbol does not exist
@@ -53,6 +60,24 @@ def stock(symbol):
     news = company.get_news()
     for article in news:
         article['providerPublishTime'] = pd.to_datetime(article.get('providerPublishTime'), unit='s').strftime('%d %b %Y, %H:%M:%S')
+
+    if compare != '':
+        compare_company = CompanyStock(compare)
+        compare_history = compare_company.get_history().reset_index(level='Date')
+        compare_history['Time'] = compare_history['Date']
+        compare_history['Date'] = pd.to_datetime(compare_history['Date']).dt.strftime('%d %b %Y')       # Convert Timestamp to Datetime
+
+        return render_template(
+            'stock.html',
+            company_symbol=company.get_symbol(),
+            company=company.get_info('longName'),
+            table=history.loc[:, history.columns != 'Time'].to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),        # Exclude 'Time' column
+            news=news,
+            data=history.to_json(),
+            compare_company_symbol=compare_company.get_symbol(),
+            compare_company=compare_company.get_info('longName'),
+            compare_data=compare_history.to_json(),
+        )
 
     return render_template(
         'stock.html',
