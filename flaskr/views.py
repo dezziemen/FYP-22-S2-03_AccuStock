@@ -6,6 +6,9 @@ import pandas as pd
 import datetime
 import time
 from collections import Counter
+from sqlalchemy import Date
+from statistics import mean
+import json
 
 views = Blueprint('views', __name__)
 
@@ -94,10 +97,46 @@ def stock(symbol, compare=''):
 def accuracy(symbol, stock_type):
     company = CompanyStock(symbol)
     data = company.get_item(stock_type)
+    ts = int(data['Date'].iloc[-1].timestamp())
+    session = db.session()
+
+    # Join (PredictedRow, PredictedTable), where symbol and time is earlier than today
+    predicted_history = session.query(
+        PredictedRow
+    ).join(
+        PredictedTable
+    ).filter(
+        PredictedTable.symbol == symbol
+    ).filter(
+        PredictedRow.time <= ts         # Filter future dates
+    ).all()
+
+    results_dict = dict()
+    diff_dict = dict()
+
+    for row in predicted_history:
+        predicted_date = datetime.datetime.fromtimestamp(row.time).strftime('%Y-%m-%d')
+        results_dict.setdefault(predicted_date, []).append(row.value)
+
+    for key, value in results_dict.items():
+        results_dict[key] = mean(value)
+        stock_value = data.loc[data['Date'] == key, stock_type].tolist()
+        if stock_value:
+            diff_dict[len(diff_dict)] = {
+                'Date': datetime.datetime.strptime(key, '%Y-%m-%d'),
+                'Actual': stock_value[0],
+                'Predicted': results_dict[key],
+                'Difference': stock_value[0] - results_dict[key],
+            }
+
+    date_today = datetime.datetime.now().strftime('%Y-%m-%d')
+
     return render_template(
         'accuracy.html',
+        company_symbol=symbol,
         company=company.get_info('longName'),
         stock_type=stock_type,
+        accuracy=diff_dict,
     )
 
 
@@ -130,12 +169,13 @@ def forecast(symbol, stock_type, days=None):
     db.session.add(predicted_table)
     db.session.flush()
 
-    predicted_rows = [PredictedRow(time=int(pd.to_datetime(row['Date']).timestamp()), value=row[stock_type], table_id=predicted_table.id) for _, row in predicted.iterrows()]
+    predicted_rows = [PredictedRow(time=int(pd.to_datetime(row['Date']).timestamp()), value=row[stock_type], table_id=predicted_table.row_id) for _, row in predicted.iterrows()]
     db.session.add_all(predicted_rows)
     db.session.commit()
 
     return render_template(
         'forecast.html',
+        company_symbol=symbol,
         company=company.get_info('longName'),
         stock_type=stock_type,
         table=combined_data.to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),

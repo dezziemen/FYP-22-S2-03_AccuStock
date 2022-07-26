@@ -1,13 +1,58 @@
 {% extends 'base.html' %}
 
-{% set title = 'FYP-22-S2-03' %}
+{% set title = company_symbol + ' prediction accuracy (' + stock_type + ')' %}
+
 {% block navbar %}
   {% include 'navbar.html' %}
 {% endblock %}
+
 {% block content %}
   <h1 class="bg-secondary p-2 text-white">{{ company }}</h1>
   <h2>Accuracy ({{ stock_type }})</h2>
   <div class="container">
-
+    {% if accuracy %}
+      <table class="table table-striped table-hover table-bordered">
+        {# Headers #}
+        <tr>
+          {% for key in accuracy[0] %}
+          <th>
+            {{ key }}
+          </th>
+          {% endfor %}
+        </tr>
+        {# Loop through dict values #}
+        {% for index in accuracy.values() %}
+          <tr>
+            <td>
+              {{ index.Date.strftime('%Y %b %d') }}
+            </td>
+            <td>
+              {{ '%.4f' | format(index.Actual) }}
+            </td>
+            <td>
+              {{ '%.4f' | format(index.Predicted) }}
+            </td>
+            {# Change text colour based on positive/negative difference #}
+            <td class="
+              {% if index.Difference > 0 %}
+                text-success
+              {% elif index.Difference < 0 %}
+                text-warning
+              {% else %}
+                text-primary
+              {% endif %}
+            ">
+              {{ '%.4f' | format(index.Difference) }}
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <div class="card">
+        <div class="card-body">
+          <p class="text-danger text-center">No recorded data available!</p>
+        </div>
+      </div>
+    {% endif %}
   </div>
 {% endblock %}

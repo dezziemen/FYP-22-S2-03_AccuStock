@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 
-{% set title = 'FYP-22-S2-03' %}
+{% set title = company_symbol + ' prediction outcome (' + stock_type + ')' %}
+
 {% block navbar %}
   {% include 'navbar.html' %}
 {% endblock %}
+
 {% block content %}
   <h1 class="bg-secondary p-2 text-white">{{ company }}</h1>
   <h2>Forecast page ({{ stock_type }})</h2>
