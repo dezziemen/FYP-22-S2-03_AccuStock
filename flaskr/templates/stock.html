@@ -31,9 +31,13 @@
       <div id="comparechartcontainer"></div>
     </div>
   {% endif %}
-
-  <div class="container">
-    <h1 class="bg-secondary p-2 text-white">{{ company }}<br>Table format data</h1>
+  <div class="row m-3">
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-table" aria-expanded="false" aria-controls="collapse-table">
+      Show data table
+    </button>
+  </div>
+  <div class="container collapse mb-3" id="collapse-table">
+{#    <h1 class="bg-secondary p-2 text-white">{{ company }}<br>Table format data</h1>#}
     <div class="table-responsive" style="max-height: 300px;">
       {{ table | safe }}
     </div>

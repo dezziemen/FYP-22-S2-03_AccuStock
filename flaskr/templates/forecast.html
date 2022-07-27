@@ -14,11 +14,18 @@
   </div>
 
   <span class="dot" style="background-color:lightblue;"></span>
-    <div style="display:inline-block">Stock Data</div>
+  <div style="display:inline-block">Stock Data</div>
   <span class="dot" style="background-color:orange;"></span>
-    <div style="display:inline-block">Predicted Data</div>
-  <div class="container">
-    <div class="table-responsive highlight-row-30" style="max-height: 1000px;">
+  <div style="display:inline-block">Predicted Data</div>
+
+  <div class="row m-3">
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-table" aria-expanded="false" aria-controls="collapse-table">
+      Show data table
+    </button>
+  </div>
+
+  <div class="container collapse mb-3" id="collapse-table">
+    <div class="table-responsive highlight-row-30" style="max-height: 300px;">
       {{ table | safe }}
     </div>
   </div>
