@@ -1,16 +1,16 @@
-#
+# views.py: Views that controls the rendering of webpages and its contents
 
+import datetime
+import time
+import json
+from collections import Counter
+from statistics import mean
 from flask import Blueprint, request, render_template
 from flaskr.models import db, Search, PredictedTable, PredictedRow
 from .finance import CompanyStock
 from .training import LSTMPrediction
 import pandas as pd
-import datetime
-import time
-from collections import Counter
 from sqlalchemy import Date
-from statistics import mean
-import json
 
 views = Blueprint('views', __name__)
 
@@ -63,8 +63,8 @@ def df_date_to_str(df):
 
 
 # View stock page
-@views.route('/stock/stock=<string:symbol>')
-@views.route('/stock/stock=<string:symbol>&compare=<string:compare>')
+@views.route('/stock/<string:symbol>')
+@views.route('/stock/<string:symbol>&<string:compare>')
 def stock(symbol, compare=''):
     search_error = 'Error: Stock symbol does not exist'
     same_compare_error = 'Error: Pointless to compare the same stock'

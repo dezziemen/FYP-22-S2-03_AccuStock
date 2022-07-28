@@ -1,5 +1,8 @@
-import yfinance as yf
+# finance.py: Contains CompanyStock class that gets stock information from given stock symbol
+# Initialize CompanyStock with stock symbol string
+
 import datetime
+import yfinance as yf
 
 
 # Get date of x years before

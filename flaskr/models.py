@@ -1,3 +1,5 @@
+# models.py: Contains models for database tables
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
