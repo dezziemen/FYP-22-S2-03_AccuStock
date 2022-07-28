@@ -1,3 +1,5 @@
+#
+
 from flask import Blueprint, request, render_template
 from flaskr.models import db, Search, PredictedTable, PredictedRow
 from .finance import CompanyStock
@@ -68,7 +70,7 @@ def stock(symbol, compare=''):
         compare_company = CompanyStock(compare)
         compare_history = compare_company.get_history().reset_index(level='Date')
         compare_history['Time'] = compare_history['Date']
-        compare_history['Date'] = pd.to_datetime(compare_history['Date']).dt.strftime('%d %b %Y')       # Convert Timestamp to Datetime
+        compare_history['Date'] = pd.to_datetime(compare_history['Date']).dt.strftime('%d %b %Y')                           # Convert Timestamp to Datetime
 
         return render_template(
             'stock.html',
@@ -86,7 +88,7 @@ def stock(symbol, compare=''):
         'stock.html',
         company_symbol=company.get_symbol(),
         company=company.get_info('longName'),
-        table=history.loc[:, history.columns != 'Time'].to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),        # Exclude 'Time' column
+        table=history.loc[:, history.columns != 'Time'].to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),            # Exclude 'Time' column
         news=news,
         data=history.to_json(),
     )

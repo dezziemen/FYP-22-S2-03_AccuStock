@@ -54,11 +54,7 @@
         {% endfor %}
       </table>
     {% else %}
-      <div class="card">
-        <div class="card-body">
-          <p class="text-danger text-center">No recorded data available!</p>
-        </div>
-      </div>
+      {% include 'no_data.html' %}
     {% endif %}
   </div>
 {% endblock %}
