@@ -1,6 +1,10 @@
 <!-- As a link -->
-<nav class="navbar bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="{{ url_for('.home') }}">AccuStock</a>
+<div class="header" style="background-color:#c7ebe6">
+    <h2 class="topnav" href="{{ url_for('.home') }}">AccuStock</h2>
   </div>
-</nav>
+  <ul>
+  <li><a class="active" href="{{ url_for('.home') }}">Home</a></li>
+  <li><a target="_blank"  href="https://seezongwei.wixsite.com/my-site">About Us</a></li>
+  <li><a href="#contact">Contact</a></li>
+   </ul>
+</div>
