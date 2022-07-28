@@ -30,14 +30,12 @@
       <table class="table-striped2">
         <tr>
           <th>Rank</th>
-          <th>Search Term</th>
-          <th>Count</th>
+          <th>Stock Symbol</th>
         </tr>
         {% for search in searches %}
           <tr>
             <td>{{ loop.index }}</td>
             <td>{{ search[0] }}</td>
-            <td>{{ search[1] }}</td>
           </tr>
         {% endfor %}
       </table>
