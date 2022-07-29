@@ -28,6 +28,14 @@
         </tr>
         {# Loop through dict values #}
         {% for index in accuracy.values() %}
+          {# Change text colour based on positive/negative difference #}
+          {% if index.Difference > 0 %}
+            {% set difference_text_color = 'text-success' %}
+          {% elif index.Difference < 0 %}
+            {% set difference_text_color = 'text-warning' %}
+          {% else %}
+            {% set difference_text_color = 'text-primary' %}
+          {% endif %}
           <tr>
             <td>
               {{ index.Date.strftime('%Y %b %d') }}
@@ -38,27 +46,17 @@
             <td>
               {{ '%.4f' | format(index.Predicted) }}
             </td>
-            {# Change text colour based on positive/negative difference #}
-            <td class="
-              {% if index.Difference > 0 %}
-                text-success
-              {% elif index.Difference < 0 %}
-                text-warning
-              {% else %}
-                text-primary
-              {% endif %}
-            ">
+            <td class="{{ difference_text_color }}">
               {{ '%.4f' | format(index.Difference) }}
+            </td>
+            <td class="{{ difference_text_color }}">
+              {{ '%.2f' | format(index.get('% difference')) }}%
             </td>
           </tr>
         {% endfor %}
       </table>
     {% else %}
-      <div class="card">
-        <div class="card-body">
-          <p class="text-danger text-center">No recorded data available!</p>
-        </div>
-      </div>
+      {% include 'no_data.html' %}
     {% endif %}
   </div>
 {% endblock %}

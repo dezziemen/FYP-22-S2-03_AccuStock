@@ -1,6 +1,8 @@
+# __init__.py: Script that Flask uses set configuration
+
+import os
 from flask import Flask
 from flaskr.models import db
-import os
 
 
 def create_app():

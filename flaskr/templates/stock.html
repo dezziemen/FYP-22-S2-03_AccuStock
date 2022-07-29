@@ -8,7 +8,12 @@
 
 {% block content %}
   <div class="container">
-    <h1  style="text-align: center; border-style:solid;border-color:#96b5b1;background-color:#f7a881;color:white;border-radius: 25px;" >{{ company }}<br>({{ company_symbol }})</h1>
+{#    <h1 class="bg-secondary p-2 text-white">#}
+    <h1  style="text-align: center; border-style:solid;border-color:#96b5b1;background-color:#f7a881;color:white;border-radius: 25px;" >
+      {% if company %}
+        {{ company }}<br>
+      {% endif %}
+      ({{ company_symbol }})</h1>
     <div class="btn-group" role="group" aria-label="Basic example">
       <a href="{{ url_for('.forecast', symbol=company_symbol, stock_type='Open') }}" id="forecast_open" class="btn btn-success">Forecast Open</a>
       <a href="{{ url_for('.forecast', symbol=company_symbol, stock_type='High') }}" id="forecast_high" class="btn btn-success">Forecast High</a>
@@ -26,7 +31,12 @@
   </div>
   {% if compare_company is defined %}
     <div class="container">
-      <h1 style="text-align: center; border-style:solid;border-color:#96b5b1;background-color:#f7a881;color:white;border-radius: 25px;" >{{ compare_company }}<br>({{ compare_company_symbol }})</h1>
+{#      <h1 class="bg-secondary p-2 text-white">#}
+      <h1 style="text-align: center; border-style:solid;border-color:#96b5b1;background-color:#f7a881;color:white;border-radius: 25px;" >
+        {% if compare_company %}
+          {{ compare_company }}<br>
+        {% endif %}
+        ({{ compare_company_symbol }})</h1>
       <h2>Historical data</h2>
       <div id="comparechartcontainer"></div>
     </div>
@@ -43,20 +53,24 @@
     </div>
   </div>
   <h1 style="text-align: center; border-style:solid;border-color:#96b5b1;background-color:#f7a881;color:white;border-radius: 25px;">News</h1>
-  <div class="container">
-    <table class="table table-striped table-hover table-bordered">
-      <tr>
-        <th>Time</th>
-        <th>Headline</th>
-      </tr>
-    {% for article in news %}
-      <tr>
-        <td>{{ article.providerPublishTime }}</td>
-        <td><a href="{{ article.link }}">{{ article.title }}</a><br></td>
-      </tr>
-    {% endfor %}
-    </table>
-  </div>
+  {% if news %}
+    <div class="container">
+      <table class="table table-striped table-hover table-bordered">
+        <tr>
+          <th>Time</th>
+          <th>Headline</th>
+        </tr>
+      {% for article in news %}
+        <tr>
+          <td>{{ article.providerPublishTime }}</td>
+          <td><a href="{{ article.link }}">{{ article.title }}</a><br></td>
+        </tr>
+      {% endfor %}
+      </table>
+    </div>
+  {% else %}
+    {% include 'no_data.html' %}
+  {% endif %}
   <script>
     var data = {{ data|safe }};
 

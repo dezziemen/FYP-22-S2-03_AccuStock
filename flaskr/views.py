@@ -1,14 +1,16 @@
+# views.py: Views that controls the rendering of webpages and its contents
+
+import datetime
+import time
+import json
+from collections import Counter
+from statistics import mean
 from flask import Blueprint, request, render_template
 from flaskr.models import db, Search, PredictedTable, PredictedRow
 from .finance import CompanyStock
 from .training import LSTMPrediction
 import pandas as pd
-import datetime
-import time
-from collections import Counter
 from sqlalchemy import Date
-from statistics import mean
-import json
 
 views = Blueprint('views', __name__)
 
@@ -19,19 +21,7 @@ TABLE_RESPONSIVE_CLASS = ['table', 'table-striped', 'table-hover', 'table-border
 @views.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'GET':
-        all_searches = [x.__dict__ for x in Search.query.all()]
-        # for search in top_searches:
-        #     search['time'] = datetime.datetime.fromtimestamp(search['time']).strftime('%d %b %Y %H:%M:%S')
-
-        # Count all search terms
-        count_searches = dict()
-        for search in all_searches:
-            count_searches[search['search_term'].upper()] = count_searches.get(search['search_term'].upper(), 0) + 1
-
-        # Get top 3 search terms
-        top_searches = Counter(count_searches).most_common(3)
-
-        return render_template('home.html', searches=top_searches)
+        return show_home()
 
     # Get search symbol
     search_symbol = request.form.get('search_symbol')
@@ -45,31 +35,73 @@ def home():
     return stock(search_symbol, compare_symbol)
 
 
+# Render home page with optional error messages
+def show_home(**kwargs):
+    all_searches = [x.__dict__ for x in Search.query.all()]
+    
+    # Count all search terms
+    count_searches = dict()
+    for search in all_searches:
+        count_searches[search['search_term'].upper()] = count_searches.get(search['search_term'].upper(), 0) + 1
+
+    # Get top 3 search terms
+    top_searches = Counter(count_searches).most_common(3)
+
+    if kwargs:
+        return render_template('home.html', searches=top_searches, **kwargs)
+
+    return render_template('home.html', searches=top_searches)
+
+
+# Convert and return DataFrame 'Date' column from Timestamp to Datetime
+def df_date_to_str(df):
+    history = df.get_history().reset_index(level='Date')  # Convert Date index to column
+    history['Time'] = history['Date']  # Create Time column
+    history['Date'] = pd.to_datetime(history['Date']).dt.strftime('%d %b %Y')  # Convert Timestamp to Datetime
+    
+    return history
+
+
 # View stock page
-@views.route('/stock/stock=<string:symbol>')
-@views.route('/stock/stock=<string:symbol>&compare=<string:compare>')
+@views.route('/stock/<string:symbol>')
+@views.route('/stock/<string:symbol>&<string:compare>')
 def stock(symbol, compare=''):
+    search_error = 'Error: Stock symbol does not exist'
+    same_compare_error = 'Error: Pointless to compare the same stock'
     company = CompanyStock(symbol)
+    symbol = symbol.upper()
+
+    if compare != '':
+        compare = compare.upper()
+
+        # If symbol and comparison symbol is same (why?)
+        if compare == symbol:
+            return show_home(compare_error=same_compare_error)      # Error: Stock and comparison is same
+
+        compare_company = CompanyStock(compare)
+
+        # If comparison stock does not exist
+        if compare_company.get_symbol() is None:
+            # If stock does not exist
+            if company.get_symbol() is None:
+                return show_home(search_error=search_error, compare_error=search_error)
+            return show_home(compare_error=search_error)
+
+        compare_history = df_date_to_str(compare_company)
 
     # If company stock symbol does not exist
     if company.get_symbol() is None:
-        return render_template('home.html', search_error='Error: Stock symbol does not exist.')
+        return show_home(search_error=search_error)
 
-    history = company.get_history().reset_index(level='Date')                       # Convert Date index to column
-    history['Time'] = history['Date']                                               # Create Time column
-    history['Date'] = pd.to_datetime(history['Date']).dt.strftime('%d %b %Y')       # Convert Timestamp to Datetime
+    history = df_date_to_str(company)
 
     # Get news and convert timestamp to datetime
     news = company.get_news()
     for article in news:
         article['providerPublishTime'] = pd.to_datetime(article.get('providerPublishTime'), unit='s').strftime('%d %b %Y, %H:%M:%S')
 
+    # Return comparison data
     if compare != '':
-        compare_company = CompanyStock(compare)
-        compare_history = compare_company.get_history().reset_index(level='Date')
-        compare_history['Time'] = compare_history['Date']
-        compare_history['Date'] = pd.to_datetime(compare_history['Date']).dt.strftime('%d %b %Y')       # Convert Timestamp to Datetime
-
         return render_template(
             'stock.html',
             company_symbol=company.get_symbol(),
@@ -82,11 +114,12 @@ def stock(symbol, compare=''):
             compare_data=compare_history.to_json(),
         )
 
+    # Return without comparison data
     return render_template(
         'stock.html',
         company_symbol=company.get_symbol(),
         company=company.get_info('longName'),
-        table=history.loc[:, history.columns != 'Time'].to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),        # Exclude 'Time' column
+        table=history.loc[:, history.columns != 'Time'].to_html(classes=TABLE_RESPONSIVE_CLASS, justify='left'),            # Exclude 'Time' column
         news=news,
         data=history.to_json(),
     )
@@ -114,22 +147,27 @@ def accuracy(symbol, stock_type):
     results_dict = dict()
     diff_dict = dict()
 
+    # Get all rows and convert time to Datetime and add to list in results_dict
     for row in predicted_history:
         predicted_date = datetime.datetime.fromtimestamp(row.time).strftime('%Y-%m-%d')
         results_dict.setdefault(predicted_date, []).append(row.value)
 
+    # Get all (key, value) pair in results_dict
     for key, value in results_dict.items():
-        results_dict[key] = mean(value)
-        stock_value = data.loc[data['Date'] == key, stock_type].tolist()
+        stock_value = data.loc[data['Date'] == key, stock_type].tolist()    # Get all dates from data that are the same date
+
+        # If date exists
         if stock_value:
+            results_dict[key] = mean(value)         # Get average of each day in results_dict
+            difference = stock_value[0] - results_dict[key]
+            # Create dict of date, actual stock value, predicted stock value, and difference
             diff_dict[len(diff_dict)] = {
                 'Date': datetime.datetime.strptime(key, '%Y-%m-%d'),
                 'Actual': stock_value[0],
                 'Predicted': results_dict[key],
-                'Difference': stock_value[0] - results_dict[key],
+                'Difference': difference,
+                '% difference': (difference/stock_value[0])*100,
             }
-
-    date_today = datetime.datetime.now().strftime('%Y-%m-%d')
 
     return render_template(
         'accuracy.html',

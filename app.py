@@ -1,3 +1,5 @@
+# app.py: Script that Flask uses to run webapp
+
 from flaskr import create_app
 from flaskr.models import db
 

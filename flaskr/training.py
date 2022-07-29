@@ -1,16 +1,20 @@
+# training.py: Contains LSTMPrediction class that runs a given stock history though LSTM ML model
+# Initialize LSTMPrediction with stock symbol string
+
+import math
+from pathlib import Path
 from keras.models import Sequential, load_model
 from keras.layers import Dense, LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 # import matplotlib.pyplot as plt
 import numpy as np
-import math
-from pathlib import Path
 
 
 class LSTMPrediction:
     training_percent = 0.65
 
+    # Initialize with stock symbol string
     def __init__(self, data):
         # Scale data to LSTM-friendly 0-1 range
         self.scaler = MinMaxScaler(feature_range=(0, 1))
