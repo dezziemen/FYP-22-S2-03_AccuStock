@@ -74,136 +74,6 @@
   <script>
     var data = {{ data|safe }};
 
-    {# If comparison data is present #}
-    {% if compare_data is defined %}
-      var compareData = {{ compare_data|safe }};
-
-      // Do graph here
-      console.log('compareData = ' + JSON.stringify(compareData));
-      // split the data set into ohlc and volume
-    var ohlc2 = [];
-    var volume2 = [];
-    var companySymbol2 = '{{ company_symbol }}';
-
-    function getData2() {
-        for (var j in compareData.Time) {
-            ohlc2.push([
-                compareData.Time[j], // the date
-                compareData.Open[j], // open
-                compareData.High[j], // high
-                compareData.Low[j],  // low
-                compareData.Close[j] // close
-            ]);
-
-            volume2.push([
-                compareData.Time[j],   // the date
-                compareData.Volume[j]  // the volume
-            ]);
-        }
-/*
-        console.log(ohlc);
-        console.log(volume);
- */
-        // console.log(JSON.stringify(ohlc));
-        // console.log(JSON.stringify(volume));
-
-    }
-
-    function plotCharts2() {
-        Highcharts.stockChart('comparechartcontainer', {
-            yAxis: [{
-                labels: {
-                    align: 'left'
-                },
-                height: '80%',
-                resize: {
-                    enabled: true
-                }
-            }, {
-                labels: {
-                    align: 'left'
-                },
-                top: '80%',
-                height: '20%',
-                offset: 0
-            }],
-            tooltip: {
-                shape: 'square',
-                headerShape: 'callout',
-                borderWidth: 0,
-                shadow: false,
-                positioner: function (width, height, point) {
-                    var chart = this.chart,
-                        position;
-
-                    if (point.isHeader) {
-                        position = {
-                            x: Math.max(
-                                // Left side limit
-                                chart.plotLeft,
-                                Math.min(
-                                    point.plotX + chart.plotLeft - width / 2,
-                                    // Right side limit
-                                    chart.chartWidth - width - chart.marginRight
-                                )
-                            ),
-                            y: point.plotY
-                        };
-                    } else {
-                        position = {
-                            x: point.series.chart.plotLeft,
-                            y: point.series.yAxis.top - chart.plotTop
-                        };
-                    }
-
-                    return position;
-                }
-            },
-            stockTools: {
-              gui: {
-                  enabled: false
-              }
-            },
-            series: [{
-                type: 'ohlc',
-                id: companySymbol2 + '-ohlc',
-                name: companySymbol2 + ' Stock Price',
-                data: ohlc2,
-                dataGrouping: {
-                    enabled: false
-                }
-            }, {
-                type: 'column',
-                id: companySymbol2 + '-volume',
-                name: companySymbol2 + ' Stock Volume',
-                data: volume2,
-                yAxis: 1,
-                dataGrouping: {
-                    enabled: false
-                }
-            }],
-            responsive: {
-                rules: [{
-                    condition: {
-                        maxWidth: 800
-                    },
-                    chartOptions: {
-                        rangeSelector: {
-                            inputEnabled: false
-                        }
-                    }
-                }]
-            }
-        });
-    }
-    $( document ).ready(function()
-    {
-        getData2();
-        plotCharts2();
-    });
-
-    {% endif %}
-
     // split the data set into ohlc and volume
     var ohlc = [];
     var volume = [];
@@ -321,11 +191,135 @@
         });
     }
 
+    {# If comparison data is present #}
+    {% if compare_data is defined %}
+      var compareData = {{ compare_data|safe }};
+
+      // Do graph here
+      console.log('compareData = ' + JSON.stringify(compareData));
+      // split the data set into ohlc and volume
+    var ohlc2 = [];
+    var volume2 = [];
+    var companySymbol2 = '{{ company_symbol }}';
+
+    function getData2() {
+        for (var j in compareData.Time) {
+            ohlc2.push([
+                compareData.Time[j], // the date
+                compareData.Open[j], // open
+                compareData.High[j], // high
+                compareData.Low[j],  // low
+                compareData.Close[j] // close
+            ]);
+
+            volume2.push([
+                compareData.Time[j],   // the date
+                compareData.Volume[j]  // the volume
+            ]);
+        }
+/*
+        console.log(ohlc);
+        console.log(volume);
+ */
+        // console.log(JSON.stringify(ohlc));
+        // console.log(JSON.stringify(volume));
+
+    }
+
+    function plotCharts2() {
+        Highcharts.stockChart('chartcontainer', {
+            legend: {
+                enabled: true,
+                layout: 'horizontal',
+                align: 'middle'
+            },
+            yAxis: [{
+                labels: {
+                    align: 'left'
+                },
+                height: '70%',
+                resize: {
+                    enabled: true
+                }
+            }, {
+                labels: {
+                    align: 'left'
+                },
+                top: '70%',
+                height: '30%',
+                offset: 0
+            }],
+            stockTools: {
+              gui: {
+                  enabled: false
+              }
+            },
+            series: [{
+                type: 'ohlc',
+                id: companySymbol + '-ohlc',
+                name: companySymbol + ' Stock Price',
+                data: ohlc,
+                dataGrouping: {
+                    enabled: false
+                }
+            },{
+                type: 'ohlc',
+                id: companySymbol2 + '-ohlc',
+                name: companySymbol2 + ' Stock Price',
+                data: ohlc2,
+                dataGrouping: {
+                    enabled: false
+                }
+            }, {
+                type: 'column',
+                id: companySymbol + '-volume',
+                name: companySymbol + ' Stock Volume',
+                data: volume,
+                yAxis: 1,
+                dataGrouping: {
+                    enabled: false
+                }
+            }, {
+                type: 'column',
+                id: companySymbol2 + '-volume',
+                name: companySymbol2 + ' Stock Volume',
+                data: volume2,
+                yAxis: 1,
+                dataGrouping: {
+                    enabled: false
+                }
+            }],
+            responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: 800
+                    },
+                    chartOptions: {
+                        rangeSelector: {
+                            inputEnabled: false
+                        }
+                    }
+                }]
+            }
+        });
+    }
+
+    $( document ).ready(function()
+    {
+        getData();
+        getData2();
+        plotCharts2();
+    });
+
+    {% else %}
+
     $( document ).ready(function()
     {
         getData();
         plotCharts();
     });
+
+    {% endif %}
 
   </script>
 {% endblock %}

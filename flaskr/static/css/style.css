@@ -160,3 +160,6 @@ li a:hover {
   }
 }
 
+#comparechartcontainer {
+    height: 600px;
+}
