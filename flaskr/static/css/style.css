@@ -163,3 +163,13 @@ li a:hover {
 #comparechartcontainer {
     height: 600px;
 }
+
+.orange-container {
+    text-align: center;
+    border-style:solid;
+    border-color:#96b5b1;
+    background-color:#f7a881;
+    color:white;
+    border-radius: 25px;
+    padding: 25px;
+}
