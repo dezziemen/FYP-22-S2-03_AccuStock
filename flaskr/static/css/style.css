@@ -164,6 +164,10 @@ li a:hover {
     height: 600px;
 }
 
+#chartcontainer {
+    height: 600px;
+}
+
 .orange-container {
     text-align: center;
     border-style:solid;
